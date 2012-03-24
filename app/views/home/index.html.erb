@@ -1,4 +1,4 @@
-<h1>Predikcia WCMA</h1>
+<h1>Prediktívny algoritmus - WCMA, WCMA-SF </h1>
 <p class="center">Zvoľte parametre predikcie (optimálne nastavené defaultne):</p>
 <%= form_tag :action=>"index" do %>
 <p class="center">
@@ -20,7 +20,7 @@ Dátum: </td>
 </td></tr>
 <tr><td> Počet predikovaných krokov <br/>(dĺžka predikcie)
 </td><td>
-<%= number_field_tag :pocet, 30, :size=>4 %> </td></tr></table>
+<%= number_field_tag :pocet, 30, :size=>4 %> </td></tr></table><br/>
 <%= submit_tag "Simuluj predikciu" %>
 </p><br/>
 <% end %>

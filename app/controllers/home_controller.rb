@@ -142,11 +142,11 @@ before_filter :authenticate_admin!
 	end # if pocet>=4
 
 	@g = Gruff::Line.new
-	@g.title = "Upravená predikcia WCMA" 
+	@g.title = "Algoritmus WCMA-SF" 
 
 	@g.data("Predikcia", @predikcia)
 	@g.data("Reálne hodnoty", @realny_vykon)
-	@g.data("Vektor Md", @md_vektor)
+	@g.data("Priemer Md", @md_vektor)
 
 
 	@g.labels = {0 => @e_vektor[@posledny-@pocet-@okno_k].cas.strftime("%H:%M, %d.%m.")||"0", 
@@ -274,11 +274,11 @@ before_filter :authenticate_admin!
 	end # if pocet>=4
 
 	@g = Gruff::Line.new
-	@g.title = "Pôvodná predikcia WCMA" 
+	@g.title = "Algoritmus WCMA" 
 
 	@g.data("Predikcia", @predikciax)
 	@g.data("Reálne hodnoty", @realny_vykonx)
-	@g.data("Vektor Md", @md_vektorx)
+	@g.data("Priemer Md", @md_vektorx)
 
 
 	@g.labels = {0 => @e_vektorx[@poslednyx-@pocet-@okno_k].cas.strftime("%H:%M, %d.%m.")||"0", 
