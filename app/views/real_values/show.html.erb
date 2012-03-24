@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Cas:</b>
+  <%= @real_value.cas %>
+</p>
+
+<p>
+  <b>Vykon:</b>
+  <%= @real_value.vykon %>
+</p>
+
+<p>
+  <b>Teplota:</b>
+  <%= @real_value.teplota %>
+</p>
+
+<p>
+  <b>Osvit:</b>
+  <%= @real_value.osvit %>
+</p>
+
+
+<%= link_to 'Edit', edit_real_value_path(@real_value) %> |
+<%= link_to 'Back', real_values_path %>

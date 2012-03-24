@@ -1,0 +1,103 @@
+<h1>Predikcia WCMA</h1>
+<p>Zvoľte parametre predikcie (optimálne nastavené defaultne):</p>
+<%= form_tag :action=>"index" do %>
+<p>
+<table><tr><td>
+Dátum: </td>
+<td> <%= select_tag(:datum, options_from_collection_for_select(RealValue.all, :id, :cas)) %>
+</td></tr>
+<tr><td> Okno D (počet dní):
+</td><td>
+<%= number_field_tag :okno_d, 6, :size=>4  %>
+</td></tr>
+<tr><td> Okno K (počet slotov):
+</td><td>
+<%= number_field_tag :okno_k, 4, :size=>4 %>
+</td></tr>
+<tr><td> Alfa: 
+</td><td>
+<%= text_field_tag :alfa, "0.7", :size=>4 %>
+</td></tr>
+<tr><td> Počet predikovaných krokov <br/>(dĺžka predikcie)
+</td><td>
+<%= number_field_tag :pocet, 30, :size=>4 %> </td></tr></table>
+<%= submit_tag "Simuluj predikciu" %>
+</p>
+<% end %>
+
+
+<% if @predikcia %>
+	<table class="classic">
+	<tr><td> GAP_k </td>
+	<td><%= number_with_precision(@gap_k) %></td>
+	<td>MAPE (p=1):</td>
+	<td><%= number_with_precision(@mape_1) %>%</td>
+	</tr>
+	<tr><td>
+	Okno K </td>
+	<td> <%= @okno_k %></td>
+	<td>MAPE (p=4):</td>
+	<td><%= number_with_precision(@mape_4) %>%</td>
+	</tr>
+	<tr><td>
+	Okno D </td>
+	<td> <%= @okno_d %> </td>
+	<td>MAPE (p=16):</td>
+	<td><%= number_with_precision(@mape_16) %>%</td>
+	</tr>
+	<tr><td>
+	Alfa </td>
+	<td> <%= @alfa %></td>
+	<td></td><td></td>
+	</tr>
+	<tr><td>
+	Počet predikcií </td>
+	<td><%= @pocet %></td>
+	<td></td><td></td>
+	</tr>
+	</table>
+
+<%= image_tag('predikcia_WCMA.png') %>	<br/>
+	
+		<table class="classic">
+	<tr><td> GAP_k </td>
+	<td><%= number_with_precision(@gap_k) %></td>
+	<td>MAPE (p=1):</td>
+	<td><%= number_with_precision(@mape_1x) %>%</td>
+	</tr>
+	<tr><td>
+	Okno K </td>
+	<td> <%= @okno_k %></td>
+	<td>MAPE (p=4):</td>
+	<td><%= number_with_precision(@mape_4x) %>%</td>
+	</tr>
+	<tr><td>
+	Okno D </td>
+	<td> <%= @okno_d %> </td>
+	<td>MAPE (p=16):</td>
+	<td><%= number_with_precision(@mape_16x) %>%</td>
+	</tr>
+	<tr><td>
+	Alfa </td>
+	<td> <%= @alfax %></td>
+	<td></td><td></td>
+	</tr>
+	<tr><td>
+	Počet predikcií </td>
+	<td><%= @pocet %></td>
+	<td></td><td></td>
+	</tr>
+	</table>
+
+<%= image_tag('predikcia_WCMAx.png') %>	
+	
+	
+<% end %>
+
+
+
+
+
+
+
+<%= link_to "importuj", :action=>"importuj" %>

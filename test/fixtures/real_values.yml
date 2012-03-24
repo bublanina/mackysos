@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  cas: 2012-03-13 21:38:28
+  vykon: 1.5
+  teplota: 1.5
+  osvit: 1.5
+
+two:
+  cas: 2012-03-13 21:38:28
+  vykon: 1.5
+  teplota: 1.5
+  osvit: 1.5

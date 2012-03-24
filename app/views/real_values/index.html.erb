@@ -1,0 +1,29 @@
+<h1>Listing real_values</h1>
+
+<table>
+  <tr>
+    <th>Cas</th>
+    <th>Vykon</th>
+    <th>Teplota</th>
+    <th>Osvit</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @real_values.each do |real_value| %>
+  <tr>
+    <td><%= real_value.cas %></td>
+    <td><%= real_value.vykon %></td>
+    <td><%= real_value.teplota %></td>
+    <td><%= real_value.osvit %></td>
+    <td><%= link_to 'Show', real_value %></td>
+    <td><%= link_to 'Edit', edit_real_value_path(real_value) %></td>
+    <td><%= link_to 'Destroy', real_value, confirm: 'Are you sure?', method: :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Real value', new_real_value_path %>

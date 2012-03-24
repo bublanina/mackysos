@@ -1,0 +1,33 @@
+<%= form_for(@real_value) do |f| %>
+  <% if @real_value.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@real_value.errors.count, "error") %> prohibited this real_value from being saved:</h2>
+
+      <ul>
+      <% @real_value.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :cas %><br />
+    <%= f.datetime_select :cas %>
+  </div>
+  <div class="field">
+    <%= f.label :vykon %><br />
+    <%= f.text_field :vykon %>
+  </div>
+  <div class="field">
+    <%= f.label :teplota %><br />
+    <%= f.text_field :teplota %>
+  </div>
+  <div class="field">
+    <%= f.label :osvit %><br />
+    <%= f.text_field :osvit %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
