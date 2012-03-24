@@ -1,7 +1,7 @@
 <h1>Predikcia WCMA</h1>
-<p>Zvoľte parametre predikcie (optimálne nastavené defaultne):</p>
+<p class="center">Zvoľte parametre predikcie (optimálne nastavené defaultne):</p>
 <%= form_tag :action=>"index" do %>
-<p>
+<p class="center">
 <table><tr><td>
 Dátum: </td>
 <td> <%= select_tag(:datum, options_from_collection_for_select(RealValue.where(:vykon=>10...1000), :id, :cas)) %>
@@ -22,11 +22,13 @@ Dátum: </td>
 </td><td>
 <%= number_field_tag :pocet, 30, :size=>4 %> </td></tr></table>
 <%= submit_tag "Simuluj predikciu" %>
-</p>
+</p><br/>
 <% end %>
 
 
 <% if @predikcia %>
+<hr/>
+<div id="predikcia">
 	<table class="classic">
 	<tr><td> GAP_k </td>
 	<td><%= number_with_precision(@gap_k) %></td>
@@ -58,7 +60,9 @@ Dátum: </td>
 	</table>
 
 <%= image_tag('predikcia_WCMA.jpg') %>	<br/>
+	</div>
 	
+	<div id="predikcia">
 		<table class="classic">
 	<tr><td> GAP_k </td>
 	<td><%= number_with_precision(@gap_k) %></td>
@@ -90,7 +94,7 @@ Dátum: </td>
 	</table>
 
 <%= image_tag('predikcia_WCMAx.jpg') %>	
-	
+	</div>
 	
 <% end %>
 

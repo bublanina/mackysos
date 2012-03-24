@@ -12,11 +12,7 @@
 </head>
 <body>
 	<div id="main">
-		<div id="left_menu">
-		<%= link_to "Home", :root %>
-<p class="center"> Tu bude ľavé menu </p>
-		</div>
-		
+				
 		<div id="content">
 		          <p style="color: green"><%= flash[:notice] %></p>
                   <p style="color: red"><%= flash[:alert] %></p>
@@ -24,6 +20,12 @@
 
 			<%= yield %>
 		</div>
+		
+	<div id="right_menu">
+		<%= link_to "Home", :root %>
+<p class="center"> Tu bude ľavé menu </p>
+		</div>
+		
 		<div class="clr"></div>
 		<div id="footer">hlavička</div>
 	</div>
