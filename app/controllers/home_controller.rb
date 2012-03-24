@@ -70,7 +70,7 @@ before_filter :authenticate_admin!
   	end
   	if @e_vektor[@posledny+1].cas.hour <= 6+faktor_sezony || @e_vektor[@posledny+1].cas.hour >= 18-faktor_sezony
   		@alfa = 0.1
-  	elsif @e_vektor[@posledny+1].cas.hour <= 10+faktor_sezony || @e_vektor[@posledny+1].cas.hour >= 15-faktor_sezony
+  	elsif @e_vektor[@posledny+1].cas.hour <= 9+faktor_sezony || @e_vektor[@posledny+1].cas.hour >= 15-faktor_sezony
   		@alfa = 0.3
   	else
   		@alfa = params[:alfa].to_f
