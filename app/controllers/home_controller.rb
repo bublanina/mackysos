@@ -153,7 +153,7 @@ before_filter :authenticate_admin!
 		((@pocet+@okno_k-1)/2).to_i => @e_vektor[@posledny-((@pocet+@okno_k-1)/2).to_i].cas.strftime("%H:%M, %d.%m.")||"0", 
 				@pocet+@okno_k-1 => @e_vektor.last.cas.strftime("%H:%M, %d.%m.%y")||"0" }
 
-	@g.write('app/assets/images/predikcia_WCMA.jpg')
+	@g.write('public/assets/predikcia_WCMA.jpg')
 	
 #----------povodny algoritmus----------------------------------------------------------------------------
 	
