@@ -6,6 +6,7 @@ GIT
 
 GEM
   remote: http://rubygems.org/
+  remote: http://github.com/
   specs:
     actionmailer (3.1.1)
       actionpack (= 3.1.1)
@@ -76,7 +77,8 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.18)
     multi_json (1.1.0)
-    mysql2 (0.3.11)
+    mysql (2.8.1)
+    mysql2 (0.3.6)
     net-scp (1.0.4)
       net-ssh (>= 1.99.1)
     net-sftp (2.0.5)
@@ -92,7 +94,7 @@ GEM
       cocaine (>= 0.0.2)
       mime-types
     polyglot (0.3.3)
-    rack (1.3.6)
+    rack (1.3.3)
     rack-cache (1.2)
       rack (>= 0.4)
     rack-mount (0.8.3)
@@ -160,9 +162,11 @@ DEPENDENCIES
   gruff
   jquery-rails
   magic_encoding
-  mysql2
+  mysql
+  mysql2 (< 0.3.7)
   nested_form!
   paperclip
+  rack (= 1.3.3)
   rails (= 3.1.1)
   rmagick
   sanitize

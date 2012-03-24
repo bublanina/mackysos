@@ -1,11 +1,15 @@
 source 'http://rubygems.org'
+source 'http://github.com'
 
 gem 'rails', '3.1.1'
 
 # Bundle edge Rails instead:
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 
-gem 'mysql2'
+gem 'mysql2', '< 0.3.7'
+gem 'mysql'
+gem "rack", '1.3.3'
+
 gem "sanitize"
 gem 'devise'
 gem 'magic_encoding'
