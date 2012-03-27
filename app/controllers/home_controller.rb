@@ -39,6 +39,14 @@ before_filter :authenticate_admin!
   			@v_vektor[a] = (@e_vektor[@posledny-@okno_k+a+1].vykon / @md_vektor[a])
   		end
   	end # params[:okno_k]+1.times do....		
+  	
+  	# urci vahovaci faktor
+  		pom =[]
+  		@p_vektor.each_index do |hodnota|
+  			pom[hodnota] = @v_vektor[hodnota]*@p_vektor[hodnota]
+  		end
+  	# urci vahovaci faktor GAPk
+  	@gap_k = pom.inject(:+) / @p_vektor.inject(:+)	
   		
   	@pocet.times do |c_predikcie|
   		aktualny = @okno_k+c_predikcie
@@ -48,13 +56,7 @@ before_filter :authenticate_admin!
   			@md_vektor[aktualny] += @e_vektor[@posledny+1-(d+1)*@vzoriek_den].vykon 
   		end	# @okno_d.times...
   		@md_vektor[aktualny] = @md_vektor[aktualny] / @okno_d
-  		# urci vahovaci faktor
-  		pom =[]
-  		@p_vektor.each_index do |hodnota|
-  			pom[hodnota] = @v_vektor[hodnota+c_predikcie]*@p_vektor[hodnota]
-  		end
-  	# urci vahovaci faktor GAPk
-  	@gap_k = pom.inject(:+) / @p_vektor.inject(:+)
+  		
   	#samotny vypocet
   	
   	@e_vektor[@posledny+1] = RealValue.new(:cas=>@e_vektor[@posledny].cas+(24*60/@vzoriek_den).to_i.minutes)
@@ -78,11 +80,11 @@ before_filter :authenticate_admin!
   	
   	@e_vektor[@posledny+1].vykon = @alfa * @e_vektor[@posledny].vykon + @gap_k * (1-@alfa) * @md_vektor[aktualny]	
   	#dopocita vektor v pre buduci cyklus / ak je md vektor 0, tak priradi 1 - priemer
-  	if @md_vektor[aktualny] == 0
-  		@v_vektor[aktualny] = 1
-  	else
-  		@v_vektor[aktualny] = (@e_vektor[@posledny+1].vykon / @md_vektor[aktualny])
-  	end
+  #	if @md_vektor[aktualny] == 0
+  #		@v_vektor[aktualny] = 1
+  #	else
+  #		@v_vektor[aktualny] = (@e_vektor[@posledny+1].vykon / @md_vektor[aktualny])
+  #	end
   	# prenastavi index poslednej hodnoty vo vektore v
   	@posledny += 1  # = @e_vektor.index(@e_vektor.last)
   	end	# @pocet.times do...
@@ -191,6 +193,14 @@ before_filter :authenticate_admin!
   		end
   	end # params[:okno_k]+1.times do....		
   		
+  	# urci vahovaci faktor
+  		pom =[]
+  		@p_vektorx.each_index do |hodnota|
+  			pom[hodnota] = @v_vektorx[hodnota]*@p_vektorx[hodnota]
+  		end
+  	# urci vahovaci faktor GAPk
+  	@gap_kx = pom.inject(:+) / @p_vektorx.inject(:+)	
+  		
   	@pocet.times do |c_predikcie|
   		aktualny = @okno_k+c_predikcie
   		@md_vektorx[aktualny] = 0
@@ -199,13 +209,7 @@ before_filter :authenticate_admin!
   			@md_vektorx[aktualny] += @e_vektorx[@poslednyx+1-(d+1)*@vzoriek_den].vykon 
   		end	# @okno_d.times...
   		@md_vektorx[aktualny] = @md_vektorx[aktualny] / @okno_d
-  		# urci vahovaci faktor
-  		pom =[]
-  		@p_vektorx.each_index do |hodnota|
-  			pom[hodnota] = @v_vektorx[hodnota+c_predikcie]*@p_vektorx[hodnota]
-  		end
-  	# urci vahovaci faktor GAPk
-  	@gap_kx = pom.inject(:+) / @p_vektorx.inject(:+)
+
   	#samotny vypocet  	
   	@e_vektorx[@poslednyx+1] = RealValue.new(:cas=>@e_vektorx[@poslednyx].cas+(24*60/@vzoriek_den).to_i.minutes)
   	@e_vektorx[@poslednyx+1].vykon = @alfax * @e_vektorx[@poslednyx].vykon + @gap_kx * (1-@alfax) * @md_vektorx[aktualny]	
