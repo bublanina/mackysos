@@ -4,7 +4,8 @@
 <p class="center">
 <table><tr><td>
 Dátum: </td>
-<td> <%= select_tag(:datum, options_from_collection_for_select(RealValue.where(:vykon=>10...1000), :id, :cas)) %>
+<td> <%= select_tag(:datum, options_from_collection_for_select(RealValue.where(:vykon=>20...1000, 
+									:cas=>(RealValue.find(1).cas+20.days)..RealValue.last.cas), :id, :cas)) %>
 </td></tr>
 <tr><td> Okno D (počet dní):
 </td><td>
