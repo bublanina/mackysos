@@ -294,9 +294,124 @@ before_filter :authenticate_admin!
   	
   	end #end if params[:datum]
   	
-  end
+  end # end def index
+  
+  
+  
+  def neuronova_siet
+  
+  	if params[:datum]		
+  		@start = RealValue.find(params[:datum])
+  		@trenovanie1 = RealValue.where(:cas=>@start.cas-5.days..@start.cas).
+  								where("osvit > 20")
+  		# normalizacia
+  		@trenovanie_osvit = []
+  		@trenovanie_teplota = []
+  		@trenovanie_out = []
+  		@trenovanie1.each_with_index do |sada|
+  			@trenovanie_out << (sada.vykon-RealValue.minimum("vykon"))/
+  						(RealValue.maximum("vykon")-RealValue.minimum("vykon"))
+  			@trenovanie_osvit << (sada.osvit-RealValue.minimum("osvit"))/
+  						(RealValue.maximum("osvit")-RealValue.minimum("osvit"))
+  			@trenovanie_teplota << (sada.teplota-RealValue.minimum("teplota"))/
+  							(RealValue.maximum("teplota")-RealValue.minimum("teplota"))
+  		end #trenovanie.each do...
+  		@pocet_neuronov = params[:pocet_neuronov].to_i || 3
+  		@trenovan = Matrix[[0.4,-0.7],[0.3,-0.5],[0.6,0.1],[0.2,0.4],[0.1,-0.2]]
+  		@out = Matrix[[0.1],[0.05],[0.3],[0.25],[0.12]]
+  		#vytvori maticu vstupov
+  		@trenovanie = Matrix[@trenovanie_osvit, @trenovanie_teplota].t
+  		@trenovanie_out = Matrix[@trenovanie_out].t
+		
+  		#inicializuje nahodne vahy
+  		vahy1=[]
+  		vahy2=[]
+  		vahyout=[]
+  		@pocet_neuronov.times do
+  			vahy1 << rand
+  			vahy2 << rand
+  			vahyout << rand	
+  		end
+  		@vahy_v = Matrix[vahy1,vahy2]
+  		@vahy_w = Matrix.column_vector(vahyout)
+  		i=0
+  		@mi=0.6
+  		@alfa=0.1
+  		@delta_w0 = Matrix.build(@vahy_w.row_size,@vahy_w.column_size) { 0 }
+  		@delta_v0 = Matrix.build(@vahy_v.row_size,@vahy_v.column_size) { 0 }
+  		
+  		# vytvori novy stlpcovy vektor z riadku matice
+  		@error = 1
+  		@error_learning = []
+  		time = Time.now
+  		while @error>0.00000001 && @error< 10  		
+  			@vstup = Matrix.column_vector(@trenovanie.row(i))
+  			@vystup = Matrix.column_vector(@trenovanie_out.row(i))
+  		 		
+  			#vypocita vstupy do skrytych neuronov - 
+  			# transpose = transponovana matica
+  			# krok 5
+  			@vstup_hidden = @vahy_v.transpose*@vstup
+  			# krok 6
+  			@vystup_hidden = Matrix.build(@vstup_hidden.row_size,1) { 0 }
+  			pole=[]
+  			@vstup_hidden.column(0).each_with_index do |riadok, row, col|
+  				pole[row] = 1/(1+Math.exp(-1*riadok))
+  			end
+  			@vystup_hidden=Matrix.column_vector(pole)
+  			# krok 7
+  			@vstup_final = @vahy_w.transpose*@vystup_hidden
+  			pole = []
+  			@vstup_final.column(0).each_with_index do |riadok, row, col|
+  				pole[row] = 1/(1+Math.exp(-1*riadok))
+  			end
+  			# 
+  			@vystup_final = Matrix[pole]
+  			# 7
+  			@error = (@vystup-@vystup_final).sum**2
+  			# 8
+  			@d = ((@vystup-@vystup_final)*@vystup_final*(1-@vystup_final.sum)).sum
+  			@y = @vystup_hidden*@d
+  			# 9
+
+  			@delta_w1 = @alfa*@delta_w0 + @mi*@y
+  			# 10
+  			@e = @vahy_w*@d
+  			# 11
+  			@d2=[]
+  			@vystup_hidden.row_size.times do |i|
+  				@d2[i] = @e.element(i,0)*@vystup_hidden.element(i,0)*(1-@vystup_hidden.element(i,0))
+  			end
+  			@d2 = Matrix.column_vector(@d2)
+			# 12
+			@x = @vstup*@d2.t
+			# 13
+
+  			@delta_v1 = @alfa*@delta_v0 + @mi*@x
+  			# 14
+  			@vahy_v = @vahy_v + @delta_v1
+  			@vahy_w = @vahy_w + @delta_w1
+  			@delta_w0 = @delta_w1
+  			@delta_v0 = @delta_v1
+  			@error_learning << @error
+  			
+  			i=(i+1).modulo(@trenovanie.row_size)
+  		end #while error
+  		@dlzka = Time.now - time
+  		
+  		@g_neuro = Gruff::Line.new
+	@g_neuro.title = "Neurónová sieť back-propagation - trénovanie" 
+
+	@g_neuro.data("Chyba", @error_learning)
 
 
+	@g_neuro.write('public/assets/neuro_learning.jpg')
+  		
+  		
+  		
+  	end # if params[:datum]
+  	
+  end # def neuronova siet
 
 
 

@@ -2,6 +2,8 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
   
+    require 'matrix'
+  
   
   def predikuj_WCMA
   	
@@ -32,5 +34,40 @@ class ApplicationController < ActionController::Base
 	redirect_to :root
 	
   	end # def importuj
+  	
+  	def importuj_osvit
+  		rub = IO.readlines('public/Osvit2.txt')
+  		rub.each do |riadok|
+		#--rozdelenie riadku podla oddelovaca bodkociarka
+		pole = riadok.split(";")
+		if pole.size >= 7 
+		@cas = DateTime.new(pole[2].to_i,pole[1].to_i,pole[0].to_i,pole[3].to_i,pole[4].to_i,0)
+		if RealValue.where(:cas=>@cas).exists?
+			hodnota = RealValue.where(:cas=>@cas).first
+			hodnota.osvit = pole[6]
+			hodnota.save
+		end
+		end # if pole.size
+	end # each do |riadok|
+	redirect_to :root
+  	end # def importuj osvit
+  	
+  	def importuj_teplotu
+  		rub = IO.readlines('public/Teplota2.txt')
+  		rub.each do |riadok|
+		#--rozdelenie riadku podla oddelovaca bodkociarka
+		pole = riadok.split(";")
+		if pole.size >= 7 
+			@cas = DateTime.new(pole[2].to_i,pole[1].to_i,pole[0].to_i,pole[3].to_i,pole[4].to_i,0)
+			if RealValue.where(:cas=>@cas).exists?
+				hodnota = RealValue.where(:cas=>@cas).first
+				hodnota.teplota = pole[6]
+				hodnota.save
+			end
+		end # if pole.size
+		end # each do |riadok|
+		redirect_to :root
+  	end # def importuj teplotu
+  	
   
 end

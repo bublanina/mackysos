@@ -1,0 +1,7 @@
+Normalizované hodnoty:
+	<% @trenovanie1.each do |t| %>
+		čas: <%= t.cas.strftime("%d.%m. %H:%M")%>, 
+		výkon: <%= t.vykon %>,
+		teplota: <%= t.teplota %>,
+		osvit: <%= t.osvit %> <br/>
+	<% end %>
