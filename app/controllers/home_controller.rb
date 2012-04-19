@@ -303,14 +303,15 @@ before_filter :authenticate_admin!
   	if params[:datum]		
   		@start = RealValue.find(params[:datum])
   		@trenovanie1 = RealValue.where(:cas=>@start.cas-20.days..@start.cas)#.
-#  								where("osvit > 0.5")
+#  								where("vykon >= 0")
   		# normalizacia
   		@trenovanie_osvit = []
   		@trenovanie_teplota = []
   		@trenovanie_out = []
   		@trenovanie1.each_with_index do |sada|
-  			@trenovanie_out << (sada.vykon-RealValue.minimum("vykon"))/
-  						(RealValue.maximum("vykon")-RealValue.minimum("vykon"))
+  		# ako 0 je urceny minimalny vykon
+  			@trenovanie_out << (sada.vykon-0)/
+  						(RealValue.maximum("vykon")-0)#RealValue.minimum("vykon"))
   			@trenovanie_osvit << (sada.osvit-RealValue.minimum("osvit"))/
   						(RealValue.maximum("osvit")-RealValue.minimum("osvit"))
   			@trenovanie_teplota << (sada.teplota-RealValue.minimum("teplota"))/
@@ -327,15 +328,15 @@ before_filter :authenticate_admin!
   		vahy2=[]
   		vahyout=[]
   		@pocet_neuronov.times do
-  			vahy1 << (rand*2-1)
-  			vahy2 << rand*2-1
-  			vahyout << rand*2-1	
+  			vahy1 << rand-0.5
+  			vahy2 << rand-0.5
+  			vahyout << rand-0.5	
   		end
   		@vahy_v = Matrix[vahy1,vahy2]
   		@vahy_w = Matrix.column_vector(vahyout)
   		i=0
-  		@mi=0.6
-  		@alfa=0.1
+  		@mi=0.8
+  		@alfa=0.8
   		@delta_w0 = Matrix.build(@vahy_w.row_size,@vahy_w.column_size) { 0 }
   		@delta_v0 = Matrix.build(@vahy_v.row_size,@vahy_v.column_size) { 0 }
   		
@@ -344,7 +345,9 @@ before_filter :authenticate_admin!
   		@error_learning = []
   		time = Time.now
   		cyklov = 0
-  		while (@error>0.00000001 && @error< 10) || (cyklov<20000) 
+  		@global_error = 0
+  		# cyklus ucenia sa opakuje kym neprebehne 200 cyklov alebo chyba nie je dostatocne nizka
+  		until (cyklov>=300)
   			@vstup = Matrix.column_vector(@trenovanie.row(i))
   			@vystup = Matrix.column_vector(@trenovanie_out.row(i))
   		 		
@@ -370,7 +373,7 @@ before_filter :authenticate_admin!
   			# 7
   			@error = (@vystup-@vystup_final).sum**2
   			#if @error < 0.00000001
-  			 cyklov = cyklov +1
+  			 
   			 #else 
   			 #cyklov = 0
   			 #end
@@ -398,14 +401,53 @@ before_filter :authenticate_admin!
   			@vahy_w = @vahy_w + @delta_w1
   			@delta_w0 = @delta_w1
   			@delta_v0 = @delta_v1
-  			@error_learning << @error
+  			
   			
   			i=(i+1).modulo(@trenovanie.row_size)
+  			if i==0
+  			
+  				@trenovanie.row_size.times do |r|
+  					@vstup = Matrix.column_vector(@trenovanie.row(r))
+  					@vystup = Matrix.column_vector(@trenovanie_out.row(r))
+  		 			
+  					#vypocita vstupy do skrytych neuronov - 
+  					# transpose = transponovana matica
+  					# krok 5
+  					@vstup_hidden = @vahy_v.transpose*@vstup
+  					# krok 6
+  					@vystup_hidden = Matrix.build(@vstup_hidden.row_size,1) { 0 }
+  					pole=[]
+  					@vstup_hidden.column(0).each_with_index do |riadok, row, col|
+  						pole[row] = 1/(1+Math.exp(-1*riadok))
+  					end  # @vstup_hidden....
+  					@vystup_hidden=Matrix.column_vector(pole)
+  					# krok 7
+  					@vstup_final = @vahy_w.transpose*@vystup_hidden
+  					pole = []
+  					@vstup_final.column(0).each_with_index do |riadok, row, col|
+  						pole[row] = 1/(1+Math.exp(-1*riadok))
+  					end #@vstup_final.column(0)
+  					# 
+  					@vystup_final = Matrix[pole]
+  					# 7
+  					@error = (@vystup-@vystup_final).sum**2
+  					@global_error += @error
+  				end # @trenovanie.each....
+  				
+  				@global_error = @global_error/(@trenovanie.row_size)
+  				@error_learning << @global_error
+  				cyklov = cyklov +1
+  			end
+  			# trenovanie konci ak je siet dostatocne naucena
+  			if (i==0)&&(@global_error<=0.001)
+  				break
+  			end # if i==0 && ...
+  			
   		end #while error
   		
   		@dlzka = Time.now - time
   		
-  	@g_neuro = Gruff::Line.new
+  	@g_neuro = Gruff::Line.new(800)
 	@g_neuro.title = "Neurónová sieť back-propagation - trénovanie" 
 	@g_neuro.data("Chyba", @error_learning)
 	@g_neuro.write('public/assets/neuro_learning.jpg')
@@ -414,10 +456,14 @@ before_filter :authenticate_admin!
   	@real = []
   	RealValue.where(:cas=>@start.cas..(@start.cas+3.days)).each do |hodnota|
   		@predikcia << predikuj(hodnota, @vahy_v, @vahy_w)
-  		@real << hodnota.vykon
+  		if hodnota.vykon >=0
+  			@real << hodnota.vykon
+  		else
+  			@real << 0
+  		end
   	end #each.do |hodnota|  	
   		
-  	@g_predik = Gruff::Line.new
+  	@g_predik = Gruff::Line.new(800)
 	@g_predik.title = "Neurónová sieť back-propagation - predikcia" 
 	@g_predik.data("Predikcia", @predikcia)
 	@g_predik.data("Reálne hodnoty", @real)
@@ -452,8 +498,8 @@ before_filter :authenticate_admin!
   	vstup_final.column(0).each_with_index do |riadok, row, col|
   		pole[row] = 1/(1+Math.exp(-1*riadok))
   	end
-  	# 
-  	vysledok = Matrix[pole].sum*(RealValue.maximum("vykon")-RealValue.minimum("vykon"))+RealValue.minimum("vykon")
+  	# 0 je nastaveny minimalny vykon
+  	vysledok = Matrix[pole].sum*(RealValue.maximum("vykon")-0)+0
   	
   	return vysledok
   end
