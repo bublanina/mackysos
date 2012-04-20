@@ -81,4 +81,12 @@ class RealValuesController < ApplicationController
       format.json { head :ok }
     end
   end
+  
+    def vymaz_db
+    RealValue.all.each do |rv|
+    	rv.destroy
+    end
+    redirect_to :root
+  	end
+  	
 end

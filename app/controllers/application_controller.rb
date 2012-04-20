@@ -23,11 +23,15 @@ class ApplicationController < ActionController::Base
 	rub.each do |riadok|
 		#--rozdelenie riadku podla oddelovaca bodkociarka
 		pole = riadok.split(";")
-		if pole.size >= 7 
+		if pole.size >= 6 
 		#-- vytvori novy  prazdny objekt RealValue
 		hodnota = RealValue.new
 		hodnota.cas = DateTime.new(pole[2].to_i,pole[1].to_i,pole[0].to_i,pole[3].to_i,pole[4].to_i,0)
-		hodnota.vykon = pole[6]
+		if pole[6]
+			hodnota.vykon = pole[6]
+		else
+			hodnota.vykon = 0
+		end
 		hodnota.save
 		end # if pole.size
 	end # each do |riadok|
@@ -49,6 +53,13 @@ class ApplicationController < ActionController::Base
 		end
 		end # if pole.size
 	end # each do |riadok|
+	
+	# pokusi sa zaplnit prazdne hodnoty / chyby, nenamerane a pod.
+		RealValue.where(:osvit=>nil).each do |rv|
+			rv.osvit = (RealValue.find(rv.id-1).osvit+RealValue.where("id > ? and osvit >= ?", rv.id,0).first.osvit)/2
+			rv.save
+		end
+		
 	redirect_to :root
   	end # def importuj osvit
   	
@@ -66,6 +77,13 @@ class ApplicationController < ActionController::Base
 			end
 		end # if pole.size
 		end # each do |riadok|
+		
+			# pokusi sa zaplnit prazdne hodnoty / chyby, nenamerane a pod.
+		RealValue.where(:teplota=>nil).each do |rv|
+			rv.teplota = (RealValue.find(rv.id-1).teplota+RealValue.where("id > ? and teplota >= ?", rv.id,0).first.teplota)/2
+			rv.save
+		end
+		
 		redirect_to :root
   	end # def importuj teplotu
   	

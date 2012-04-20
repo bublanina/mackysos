@@ -335,8 +335,8 @@ before_filter :authenticate_admin!
   		@vahy_v = Matrix[vahy1,vahy2]
   		@vahy_w = Matrix.column_vector(vahyout)
   		i=0
-  		@mi=0.8
-  		@alfa=0.8
+  		@mi=0.6
+  		@alfa=0.1
   		@delta_w0 = Matrix.build(@vahy_w.row_size,@vahy_w.column_size) { 0 }
   		@delta_v0 = Matrix.build(@vahy_v.row_size,@vahy_v.column_size) { 0 }
   		
@@ -472,6 +472,189 @@ before_filter :authenticate_admin!
   	end # if params[:datum]
   	
   end # def neuronova siet
+#------------------------------------------------------------------------------
+
+   def neuronova_siet2
+  
+  	if params[:datum]		
+  		@start = RealValue.find(params[:datum])
+  		@trenovanie1 = RealValue.where(:cas=>@start.cas-20.days..@start.cas)#.
+#  								where("vykon >= 0")
+  		# normalizacia
+  		@trenovanie_osvit = []
+  		@trenovanie_teplota = []
+  		@trenovanie_cas = []
+  		@trenovanie_out = []
+  		@trenovanie1.each_with_index do |sada|
+  		# ako 0 je urceny minimalny vykon
+  			@trenovanie_out << (sada.vykon-0)/
+  						(RealValue.maximum("vykon")-0)#RealValue.minimum("vykon"))
+  			@trenovanie_osvit << (sada.osvit-RealValue.minimum("osvit"))/
+  						(RealValue.maximum("osvit")-RealValue.minimum("osvit"))
+  			@trenovanie_teplota << (sada.teplota-RealValue.minimum("teplota"))/
+  							(RealValue.maximum("teplota")-RealValue.minimum("teplota"))
+  			@trenovanie_cas <<  sada.cas.hour/24.0 + sada.cas.min/60
+  		end #trenovanie.each do...
+  		@pocet_neuronov = params[:pocet_neuronov].to_i || 3
+
+  		#vytvori maticu vstupov
+  		@trenovanie = Matrix[@trenovanie_osvit, @trenovanie_teplota, @trenovanie_cas].t
+  		@trenovanie_out = Matrix[@trenovanie_out].t
+		
+  		#inicializuje nahodne vahy
+  		vahy1=[]
+  		vahy2=[]
+  		vahy3=[]
+  		vahyout=[]
+  		@pocet_neuronov.times do
+  			vahy1 << rand-0.5
+  			vahy2 << rand-0.5
+  			vahy3 << rand-0.5
+  			vahyout << rand-0.5	
+  		end
+  		@vahy_v = Matrix[vahy1,vahy2, vahy3]
+  		@vahy_w = Matrix.column_vector(vahyout)
+  		i=0
+  		@mi=0.6
+  		@alfa=0.1
+  		@delta_w0 = Matrix.build(@vahy_w.row_size,@vahy_w.column_size) { 0 }
+  		@delta_v0 = Matrix.build(@vahy_v.row_size,@vahy_v.column_size) { 0 }
+  		
+  		# vytvori novy stlpcovy vektor z riadku matice
+  		@error = 1
+  		@error_learning = []
+  		time = Time.now
+  		cyklov = 0
+  		@global_error = 0
+  		# cyklus ucenia sa opakuje kym neprebehne 200 cyklov alebo chyba nie je dostatocne nizka
+  		until (cyklov>=300)
+  			@vstup = Matrix.column_vector(@trenovanie.row(i))
+  			@vystup = Matrix.column_vector(@trenovanie_out.row(i))
+  		 		
+  			#vypocita vstupy do skrytych neuronov - 
+  			# transpose = transponovana matica
+  			# krok 5
+  			@vstup_hidden = @vahy_v.transpose*@vstup
+  			# krok 6
+  			@vystup_hidden = Matrix.build(@vstup_hidden.row_size,1) { 0 }
+  			pole=[]
+  			@vstup_hidden.column(0).each_with_index do |riadok, row, col|
+  				pole[row] = 1/(1+Math.exp(-1*riadok))
+  			end
+  			@vystup_hidden=Matrix.column_vector(pole)
+  			# krok 7
+  			@vstup_final = @vahy_w.transpose*@vystup_hidden
+  			pole = []
+  			@vstup_final.column(0).each_with_index do |riadok, row, col|
+  				pole[row] = 1/(1+Math.exp(-1*riadok))
+  			end
+  			# 
+  			@vystup_final = Matrix[pole]
+  			# 7
+  			@error = (@vystup-@vystup_final).sum**2
+  			#if @error < 0.00000001
+  			 
+  			 #else 
+  			 #cyklov = 0
+  			 #end
+  			# 8
+  			@d = ((@vystup-@vystup_final)*@vystup_final*(1-@vystup_final.sum)).sum
+  			@y = @vystup_hidden*@d
+  			# 9
+
+  			@delta_w1 = @alfa*@delta_w0 + @mi*@y
+  			# 10
+  			@e = @vahy_w*@d
+  			# 11
+  			@d2=[]
+  			@vystup_hidden.row_size.times do |i|
+  				@d2[i] = @e.element(i,0)*@vystup_hidden.element(i,0)*(1-@vystup_hidden.element(i,0))
+  			end
+  			@d2 = Matrix.column_vector(@d2)
+			# 12
+			@x = @vstup*@d2.t
+			# 13
+
+  			@delta_v1 = @alfa*@delta_v0 + @mi*@x
+  			# 14
+  			@vahy_v = @vahy_v + @delta_v1
+  			@vahy_w = @vahy_w + @delta_w1
+  			@delta_w0 = @delta_w1
+  			@delta_v0 = @delta_v1
+  			
+  			
+  			i=(i+1).modulo(@trenovanie.row_size)
+  			if i==0
+  			
+  				@trenovanie.row_size.times do |r|
+  					@vstup = Matrix.column_vector(@trenovanie.row(r))
+  					@vystup = Matrix.column_vector(@trenovanie_out.row(r))
+  		 			
+  					#vypocita vstupy do skrytych neuronov - 
+  					# transpose = transponovana matica
+  					# krok 5
+  					@vstup_hidden = @vahy_v.transpose*@vstup
+  					# krok 6
+  					@vystup_hidden = Matrix.build(@vstup_hidden.row_size,1) { 0 }
+  					pole=[]
+  					@vstup_hidden.column(0).each_with_index do |riadok, row, col|
+  						pole[row] = 1/(1+Math.exp(-1*riadok))
+  					end  # @vstup_hidden....
+  					@vystup_hidden=Matrix.column_vector(pole)
+  					# krok 7
+  					@vstup_final = @vahy_w.transpose*@vystup_hidden
+  					pole = []
+  					@vstup_final.column(0).each_with_index do |riadok, row, col|
+  						pole[row] = 1/(1+Math.exp(-1*riadok))
+  					end #@vstup_final.column(0)
+  					# 
+  					@vystup_final = Matrix[pole]
+  					# 7
+  					@error = (@vystup-@vystup_final).sum**2
+  					@global_error += @error
+  				end # @trenovanie.each....
+  				
+  				@global_error = @global_error/(@trenovanie.row_size)
+  				@error_learning << @global_error
+  				cyklov = cyklov +1
+  			end
+  			# trenovanie konci ak je siet dostatocne naucena
+  			if (i==0)&&(@global_error<=0.001)
+  				break
+  			end # if i==0 && ...
+  			
+  		end #while error
+  		
+  		@dlzka = Time.now - time
+  		
+  	@g_neuro = Gruff::Line.new(800)
+	@g_neuro.title = "Neurónová sieť back-propagation - trénovanie" 
+	@g_neuro.data("Chyba", @error_learning)
+	@g_neuro.write('public/assets/neuro_learning.jpg')
+	
+  	@predikcia = []
+  	@real = []
+  	RealValue.where(:cas=>@start.cas..(@start.cas+3.days)).each do |hodnota|
+  		@predikcia << predikuj2(hodnota, @vahy_v, @vahy_w)
+  		if hodnota.vykon >=0
+  			@real << hodnota.vykon
+  		else
+  			@real << 0
+  		end
+  	end #each.do |hodnota|  	
+  		
+  	@g_predik = Gruff::Line.new(800)
+	@g_predik.title = "Neurónová sieť back-propagation - predikcia" 
+	@g_predik.data("Predikcia", @predikcia)
+	@g_predik.data("Reálne hodnoty", @real)
+	@g_predik.write('public/assets/neuro_prediction.jpg')	
+  		
+  	end # if params[:datum]
+  	
+  end # def neuronova siet2
+  
+  
+#------------------------------------------------------------------------------
 
 
   def predikuj(hodnota, vahy_v, vahy_w)
@@ -480,6 +663,37 @@ before_filter :authenticate_admin!
   	teplota = (hodnota.teplota-RealValue.minimum("teplota"))/
   							(RealValue.maximum("teplota")-RealValue.minimum("teplota"))
   	trenovanie = Matrix[[osvit], [teplota]].t
+  	vstup = Matrix.column_vector(trenovanie.row(0))
+  	#vypocita vstupy do skrytych neuronov - 
+  	# transpose = transponovana matica
+  	# krok 5
+  	vstup_hidden = vahy_v.transpose*vstup
+  	# krok 6
+  	vystup_hidden = Matrix.build(vstup_hidden.row_size,1) { 0 }
+  	pole=[]
+  	vstup_hidden.column(0).each_with_index do |riadok, row, col|
+  		pole[row] = 1/(1+Math.exp(-1*riadok))
+  	end
+  	vystup_hidden=Matrix.column_vector(pole)
+  	# krok 7
+  	vstup_final = vahy_w.transpose*vystup_hidden
+  	pole = []
+  	vstup_final.column(0).each_with_index do |riadok, row, col|
+  		pole[row] = 1/(1+Math.exp(-1*riadok))
+  	end
+  	# 0 je nastaveny minimalny vykon
+  	vysledok = Matrix[pole].sum*(RealValue.maximum("vykon")-0)+0
+  	
+  	return vysledok
+  end
+  
+  def predikuj2(hodnota, vahy_v, vahy_w)
+    osvit = (hodnota.osvit-RealValue.minimum("osvit"))/
+  						(RealValue.maximum("osvit")-RealValue.minimum("osvit"))
+  	teplota = (hodnota.teplota-RealValue.minimum("teplota"))/
+  							(RealValue.maximum("teplota")-RealValue.minimum("teplota"))
+  	cas = hodnota.cas.hour/24 + hodnota.cas.min/60
+  	trenovanie = Matrix[[osvit], [teplota], [cas]].t
   	vstup = Matrix.column_vector(trenovanie.row(0))
   	#vypocita vstupy do skrytych neuronov - 
   	# transpose = transponovana matica

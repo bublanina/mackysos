@@ -1,7 +1,6 @@
 <h1>Prediktívny algoritmus - Neurónová sieť </h1>
 <p class="center">Zvoľte dátum pre trénovanie:</p>
-<% if RealValue.first %>
-<%= form_tag :action=>"neuronova_siet" do %>
+<%= form_tag :action=>"neuronova_siet2" do %>
 <p class="center">
 <table><tr><td>
 Dátum: </td>
@@ -13,8 +12,6 @@ Počet neurónov v skrytej vrstve: <%= number_field_tag :pocet_neuronov, 5, :siz
 </table><br/>
 <%= submit_tag "Simuluj predikciu" %>
 </p><br/>
-<% end %>
-
 <% end %>
 
 
