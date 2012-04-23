@@ -200,7 +200,7 @@ before_filter :authenticate_admin!
   		end
   	# urci vahovaci faktor GAPk
   	@gap_kx = pom.inject(:+) / @p_vektorx.inject(:+)	
-  		
+#-----------------------------------------------------------------------------------  		
   	@pocet.times do |c_predikcie|
   		aktualny = @okno_k+c_predikcie
   		@md_vektorx[aktualny] = 0
@@ -222,7 +222,7 @@ before_filter :authenticate_admin!
   	# prenastavi index poslednej hodnoty vo vektore v
   	@poslednyx += 1  # = @e_vektor.index(@e_vektor.last)
   	end	# @pocet.times do...
-  	
+#------------------------------------------------------------------------------------  	
   	#priprava hodnot pre graficke zobrazenie
   	@predikciax = []
   	@realny_vykonx = []

@@ -60,11 +60,12 @@ p.menu {
 }
 
 #predikcia {
-	width: 440px;
-	min-width: 440px;
-	max-width: 440px;
-	padding : 5px;
+	width: 420px;
+	min-width: 420px;
+	max-width: 420px;
+	padding :15px;
 	float: left;
+	text-align: center;
 	min-height: 440px;
 }
 
@@ -84,10 +85,8 @@ p.menu {
 }
 
 img {
-	width: 800px;
-	max-width: 800px;
-	height: 400px;
-	max-height: 400px;
+	width: 400px;
+	max-width: 400px;
 	margin: 0 auto;
 }
 
