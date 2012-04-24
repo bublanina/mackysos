@@ -58,6 +58,8 @@ Predikcia::Application.routes.draw do
    root :to => 'home#index'
    match '/neuronova_siet' => 'home#neuronova_siet'
    match '/neuronova_siet2' => 'home#neuronova_siet2'
+   match '/neuronova_siet3' => 'home#neuronova_siet3'
+   match '/sprava_db' => 'home#sprava_db'
    match '/vymaz_db' => 'real_values#vymaz_db'
 
   # See how all your routes lay out with "rake routes"

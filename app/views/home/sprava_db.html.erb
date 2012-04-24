@@ -1,0 +1,11 @@
+<h1> Správa databázových údajov </h1>
+<p class="center">
+Uvedené akcie pre správu databázových údajov môžu trvať vzhľadom na 
+veľké množstvo dát aj niekoľko minút. Po vymazaní databázy je nutné dáta najprv importovať a 
+následne importovať osvit a teplotu, inak algoritmy nedokážu pracovať. Preto prosím
+klikajte uvážene.
+</p>
+<%= link_to "Vymaž celú databázu", :action=>"vymaz_db", :controller=>"real_values" %><br/>
+<%= link_to "importuj", :action=>"importuj" %><br/>
+<%= link_to "Importuj osvit", :action=>"importuj_osvit" %><br/>
+<%= link_to "Importuj teplotu", :action=>"importuj_teplotu" %><br/>

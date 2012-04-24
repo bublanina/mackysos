@@ -7,9 +7,25 @@
 Dátum: </td>
 <td> <%= select_tag(:datum, options_from_collection_for_select(RealValue.where(:osvit=>20...1000, 
 									:cas=>RealValue.first.cas+20.days...RealValue.last.cas), :id, :cas)) %>
-</td></tr><tr><td>
-Počet neurónov v skrytej vrstve: <%= number_field_tag :pocet_neuronov, 5, :size=>4  %>
+</td>
+<td rowspan="4">
+<%= image_tag('vzor1.png') %>
+</td>
+</tr><tr><td colspan="2">
+Počet neurónov v skrytej vrstve:
+<%= number_field_tag :pocet_neuronov, 3, :size=>4  %></td>
+<td>
 </td></tr>
+<tr><td>
+Počet cyklov: </td>
+<td> <%= number_field_tag :cyklov, 300, :size=>4 %>
+</td><td></td></tr>
+<tr><td>
+Chyba učenia: </td>
+<td> <%= text_field_tag :error, "0.001", :size=>4 %>
+</td>
+<td></td>
+</tr>
 </table><br/>
 <%= submit_tag "Simuluj predikciu" %>
 </p><br/>
@@ -21,7 +37,7 @@ Počet neurónov v skrytej vrstve: <%= number_field_tag :pocet_neuronov, 5, :siz
 <% if @trenovanie1 %>
 Dátum: <%= @start.cas.strftime("%d.%m.%y, %H:%M") %><br/>
 
-	vstup<%= @vstup %><br/>
+<!--	vstup<%= @vstup %><br/>
 	vystup<%= @vystup %><br/>
 	vahy v:<%= @vahy_v %><br/>
 	vahy w:<%= @vahy_w %><br/>
@@ -36,12 +52,12 @@ Dátum: <%= @start.cas.strftime("%d.%m.%y, %H:%M") %><br/>
 	e:<%= @e %><br/>
 	d2:<%= @d2 %><br/>
 	x:<%= @x %><br/>
-	delta_v1:<%= @delta_v1 %><br/>
-	vahy vn:<%= @vahy_vn %><br/>
-	vahy wn:<%= @vahy_wn %><br/>
+	delta_v1:<%= @delta_v1 %><br/>		-->
+	vahy vn:<%= @vahy_v %><br/>
+	vahy wn:<%= @vahy_w %><br/>
 	Dĺžka trénovania:<%= @dlzka %><br/>
 
-<%= image_tag('neuro_learning.jpg') %>	<br/>
-<%= image_tag('neuro_prediction.jpg') %>	<br/>
+<%= image_tag('neuro_learning.jpg', :class=>"graf") %>	<br/>
+<%= image_tag('neuro_prediction.jpg', :class=>"graf") %>	<br/>
 
 <% end %>

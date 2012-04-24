@@ -85,9 +85,13 @@ p.menu {
 }
 
 img {
+	margin: 0 auto;
+}
+
+img.graf {
 	width: 400px;
 	max-width: 400px;
-	margin: 0 auto;
+	min-width: 400px;
 }
 
 
@@ -96,6 +100,7 @@ table {
     max-width: 400px;
     font-size: 14px;
     margin: 0 auto;
+    padding-left: 20px;
 }
 
 table.classic
