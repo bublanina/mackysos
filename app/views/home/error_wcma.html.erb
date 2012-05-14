@@ -1,0 +1,45 @@
+<h1>Prediktívny algoritmus - WCMA, WCMA-SF </h1>
+
+<% if RealValue.first %>
+<p class="center">Zvoľte parametre predikcie (optimálne nastavené defaultne):</p>
+<%= form_tag :action=>"error_wcma" do %>
+<p class="center">
+<table><tr><td>
+Dátum: </td>
+<td> <%= select_tag(:datum, options_from_collection_for_select(RealValue.where(:vykon=>20...1000, 
+									:cas=>(RealValue.first.cas+20.days)..RealValue.last.cas), :id, :cas)) %>
+</td></tr>
+<tr><td> Okno D (počet dní):
+</td><td>
+<%= number_field_tag :okno_d, 20, :size=>4  %>
+</td></tr>
+<tr><td> Okno K (počet slotov):
+</td><td>
+<%= number_field_tag :okno_k, 4, :size=>4 %>
+</td></tr>
+<tr><td> Alfa: 
+</td><td>
+<%= text_field_tag :alfa, "0.7", :size=>4 %>
+</td></tr>
+<tr><td> Počet predikovaných krokov <br/>(dĺžka predikcie)
+</td><td>
+<%= number_field_tag :pocet, 30, :size=>4 %> </td></tr></table><br/>
+<%= submit_tag "Simuluj predikciu" %>
+</p><br/>
+<% end %>
+<% end %>
+
+
+<% if @predikcia %>
+<hr/>
+Čas: <%= @start.cas.strftime("%d.%m.%y, %H:%M") %><br/>
+Chyba pre p=1 (15 minút): <%= @mape_1 %><br/>
+MAPE: <%= number_with_precision(@mape_1/@c1) %><br/>
+počet vzoriek: <%= @c1 %><br/>
+Chyba pre p=4 (1 hodina): <%= @mape_41 %><br/>
+MAPE: <%= number_with_precision(@mape_41/@c4) %><br/>
+počet vzoriek: <%= @c4 %><br/>
+		
+
+	
+<% end %>

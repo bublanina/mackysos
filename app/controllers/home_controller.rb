@@ -330,9 +330,9 @@ before_filter :authenticate_admin!
   		vahy2=[]
   		vahyout=[]
   		@pocet_neuronov.times do
-  			vahy1 << rand-0.5
-  			vahy2 << rand-0.5
-  			vahyout << rand-0.5	
+  			vahy1 << rand
+  			vahy2 << rand
+  			vahyout << rand
   		end
   		@vahy_v = Matrix[vahy1,vahy2]
   		@vahy_w = Matrix.column_vector(vahyout)
@@ -474,8 +474,7 @@ before_filter :authenticate_admin!
   
   	if params[:datum]		
   		@start = RealValue.find(params[:datum])
-  		@trenovanie1 = RealValue.where(:cas=>@start.cas-20.days..@start.cas)#.
-#  								where("vykon >= 0")
+  		@trenovanie1 = RealValue.where(:cas=>@start.cas-20.days..@start.cas)
   		# normalizacia
   		@trenovanie_osvit = []
   		@trenovanie_teplota = []
@@ -505,10 +504,10 @@ before_filter :authenticate_admin!
   		vahy3=[]
   		vahyout=[]
   		@pocet_neuronov.times do
-  			vahy1 << rand-0.5
-  			vahy2 << rand-0.5
-  			vahy3 << rand-0.5
-  			vahyout << rand-0.5	
+  			vahy1 << rand
+  			vahy2 << rand
+  			vahy3 << rand
+  			vahyout << rand	
   		end
   		@vahy_v = Matrix[vahy1,vahy2, vahy3]
   		@vahy_w = Matrix.column_vector(vahyout)
@@ -693,11 +692,11 @@ before_filter :authenticate_admin!
   		vahy4=[]
   		vahyout1=[]
   		@pocet_neuronov.times do
-  			vahy1 << rand-0.5
-  			vahy2 << rand-0.5
-  			vahy3 << rand-0.5
-  			vahy4 << rand-0.5
-  			vahyout1 << rand-0.5	
+  			vahy1 << rand
+  			vahy2 << rand
+  			vahy3 << rand
+  			vahy4 << rand
+  			vahyout1 << rand	
   		end
   		@vahy_v = Matrix[vahy1,vahy2, vahy3, vahy4]
   		@vahy_w = Matrix.column_vector(vahyout1)
@@ -738,7 +737,7 @@ before_filter :authenticate_admin!
   			# 
   			@vystup_final = Matrix[pole]
   			# 7
-  			@error = (@vystup-@vystup_final).sum**2
+  			@error = (@vystup-@vystup_final).sum**2/2
   			#if @error < 0.00000001
   			 
   			 #else 
@@ -797,7 +796,7 @@ before_filter :authenticate_admin!
   					# 
   					@vystup_final = Matrix[pole]
   					# 7
-  					@error = (@vystup-@vystup_final).sum**2
+  					@error = (@vystup-@vystup_final).sum**2/2
   					@global_error += @error
   				end # @trenovanie.each....
   				
@@ -936,5 +935,139 @@ before_filter :authenticate_admin!
   	return vysledok
   end
 
+#-------------------------------------------------------------------------------
+
+def error_wcma
+	
+	if params[:datum]
+	
+  	@start = RealValue.find(params[:datum])
+  	@okno_k = 4
+  	@okno_d = 20  	
+  	@alfa = 0.7
+  	@pocet = 4
+  	@vzoriek_den = RealValue.where(:cas=>@start.cas.to_date..@start.cas.to_date+1.day).count-1
+  	
+  	@mape_1 = 0
+  	@mape_41 = 0
+  	@c1 = 0
+  	@c4 = 0
+  	@min = RealValue.maximum("vykon")*0.10
+  	
+  	1000.times do
+  	if RealValue.find(@start.id+1).vykon > @min
+  	
+  	@md_vektor = []
+  	@v_vektor = []
+  	@p_vektor = []
+  	@start_s_oknom = RealValue.find(params[:datum].to_i-@okno_k+1) #je mozne menit casovy rozsah vzoriek
+  	# do hlavneho vektora e nacita vsetky potrebne hodnoty pre vypocet
+  	@e_vektor = RealValue.where(
+  				:cas=>(@start_s_oknom.cas-@okno_d.to_i.days)..@start.cas+1.minute)
+  	# ulozi index poslednej hodnoty
+  	@posledny = @e_vektor.index(@e_vektor.last)
+  	#--vypocitame vektory Md,V, P pre prve okno
+  	@okno_k.times do |a|  
+  		@p_vektor[a] = 1.0/(@okno_k-a)
+  		@md_vektor[a]=0
+  		@okno_d.times do |s| #vypocet predoslych hodnot na zaklade velkosti okna d
+  			#scita vykony predoslych dni o velkosti okno_d
+  			@md_vektor[a] += @e_vektor[@posledny-@okno_k+a+1-(s+1)*@vzoriek_den].vykon
+  		end #params[:okno_do].times...
+  		#vypocita priemer md
+  		@md_vektor[a] = @md_vektor[a] / @okno_d
+  		#vypocita vektor V = d/Md / v pripade ze md je 0, priradi v hodnotu 1 = priemer
+  		if @md_vektor[a] <= 0
+  			@md_vektor[a] = 0
+  			@v_vektor[a] = 1
+  		else
+  			@v_vektor[a] = (@e_vektor[@posledny-@okno_k+a+1].vykon / @md_vektor[a])
+  		end
+  	end # params[:okno_k]+1.times do....		
+  	
+  	# urci vahovaci faktor
+  		pom =[]
+  		@p_vektor.each_index do |hodnota|
+  			pom[hodnota] = @v_vektor[hodnota]*@p_vektor[hodnota]
+  		end
+  	# urci vahovaci faktor GAPk
+  	@gap_k = pom.inject(:+) / @p_vektor.inject(:+)	
+  		
+  	@pocet.times do |c_predikcie|
+  		aktualny = @okno_k+c_predikcie
+  		@md_vektor[aktualny] = 0
+  		# urci priemer md pre predikovanu hodnotu
+  		@okno_d.times do |d|
+  			@md_vektor[aktualny] += @e_vektor[@posledny+1-(d+1)*@vzoriek_den].vykon 
+  		end	# @okno_d.times...
+  		@md_vektor[aktualny] = @md_vektor[aktualny] / @okno_d
+  		
+  	#samotny vypocet
+  	
+  	@e_vektor[@posledny+1] = RealValue.new(:cas=>@e_vektor[@posledny].cas+(24*60/@vzoriek_den).to_i.minutes)
+  	
+
+  	
+  	@e_vektor[@posledny+1].vykon = @alfa * @e_vektor[@posledny].vykon + @gap_k * (1-@alfa) * @md_vektor[aktualny]	
+  	#dopocita vektor v pre buduci cyklus / ak je md vektor 0, tak priradi 1 - priemer
+  #	if @md_vektor[aktualny] == 0
+  #		@v_vektor[aktualny] = 1
+  #	else
+  #		@v_vektor[aktualny] = (@e_vektor[@posledny+1].vykon / @md_vektor[aktualny])
+  #	end
+  	# prenastavi index poslednej hodnoty vo vektore v
+  	@posledny += 1  # = @e_vektor.index(@e_vektor.last)
+  	end	# @pocet.times do...
+  	
+  	#priprava hodnot pre graficke zobrazenie
+  	@predikcia = []
+  	@realny_vykon = []
+  	@okno_k.times do |okno|
+  		@predikcia[okno] = @e_vektor[@posledny-@pocet-@okno_k+okno+1].vykon
+  		@realny_vykon[okno] = @e_vektor[@posledny-@pocet-@okno_k+okno+1].vykon
+  	end
+	@pocet.times do |p|
+		@predikcia[p+@okno_k] = @e_vektor[@posledny-@pocet+p+1].vykon || 0
+		@realny_vykon[p+@okno_k] = RealValue.find(@start.id+p+1).vykon || 0
+	end
+	
+	if @realny_vykon[@okno_k]>@min
+		@mape_1 += 100*(@realny_vykon[@okno_k]-@predikcia[@okno_k]).abs / @realny_vykon[@okno_k]
+		@c1 += 1
+	else
+	
+	end
+	
+	if @pocet >= 4
+		r=4
+		@mape_4 = 0
+		4.times do |i|
+			if @realny_vykon[@okno_k+i]>@min
+				@mape_4 += 100*(@realny_vykon[@okno_k+i]-@predikcia[@okno_k+i]).abs / @realny_vykon[@okno_k+i]
+			else 
+				r=0 
+				break
+			end
+		end #4.times do
+		if r != 0
+			@mape_4 = @mape_4/r
+			@mape_41 += @mape_4
+			@c4 += 1
+		else
+			@mape_4 = nil
+		end
+		
+	end
+		
+   end # if
+   @start = RealValue.find(@start.id+1)
+
+   end #1000.times
+   
+   end #if params[datum]
+
+end
+
+#-------------------------------------------------------------------------------
 
 end

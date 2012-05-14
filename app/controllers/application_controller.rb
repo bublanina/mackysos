@@ -13,15 +13,19 @@ class ApplicationController < ActionController::Base
 		#--rozdelenie riadku podla oddelovaca bodkociarka
 		pole = riadok.split(";")
 		if pole.size >= 6 
-		#-- vytvori novy  prazdny objekt RealValue
-		hodnota = RealValue.new
-		hodnota.cas = DateTime.new(pole[2].to_i,pole[1].to_i,pole[0].to_i,pole[3].to_i,pole[4].to_i,0)
-		if pole[6]
-			hodnota.vykon = pole[6]
-		else
-			hodnota.vykon = 0
-		end
-		hodnota.save
+			#-- vytvori novy  prazdny objekt RealValue
+			hodnota = RealValue.new
+			hodnota.cas = DateTime.new(pole[2].to_i,pole[1].to_i,pole[0].to_i,pole[3].to_i,pole[4].to_i,0)
+			if pole[6]>=0
+				if pole[6]>=0
+					hodnota.vykon = pole[6] 
+				else
+					hodnota.vykon = 0
+				end
+			else 
+				hodnota.vykon = 0
+			end
+			hodnota.save
 		end # if pole.size
 	end # each do |riadok|
 	

@@ -50,11 +50,15 @@ Dátum: <%= @start.cas.strftime("%d.%m.%y, %H:%M") %><br/>
 	d2:<%= @d2 %><br/>
 	x:<%= @x %><br/>
 	delta_v1:<%= @delta_v1 %><br/>		-->
-	vahy vn:<%= @vahy_v %><br/>
-	vahy wn:<%= @vahy_w %><br/>
-	Dĺžka trénovania:<%= @dlzka %><br/>
+	vahy vn:<% @vahy_v.each do |v| %>
+	<%= number_with_precision(v) %>
+	<% end %><br/>
+	vahy wn:<% @vahy_w.each do |w| %>
+	<%= number_with_precision(w) %>
+	<% end %><br/>
+	Dĺžka trénovania:<%= number_with_precision(@dlzka) %> sekund<br/>
 
-<%= image_tag('neuro_learning.jpg', :class=>"graf") %>	<br/>
+<%= image_tag('neuro_learning.jpg', :class=>"graf") %>	
 <%= image_tag('neuro_prediction.jpg', :class=>"graf") %>	<br/>
 
 <% end %>
