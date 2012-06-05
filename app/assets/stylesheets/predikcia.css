@@ -151,20 +151,40 @@ table.c
 table td.b
 {
 	background-color: blue;
+	    border-color: black;
+    border-width: 1px;
+    border-style: solid;
+        border-collapse: collapse;
+	
 }
 table td.c
 {
 	background-color: yellow;
+	    border-color: black;
+    border-width: 1px;
+    border-style: solid;
+        border-collapse: collapse;
 }
 table td.r
 {
 	background-color: red;
+	    border-color: black;
+    border-width: 1px;
+    border-style: solid;
+        border-collapse: collapse;
 }
 table.c td
 {
     border-color: black;
     border-width: 1px;
     border-style: solid;
+        border-collapse: collapse;
+        width: 35px;
+    max-width: 35px;
+    min-width: 35px;
+        height: 30px;
+    max-height: 30px;
+    min-height: 30px;
 }
 
 #content a:hover img
