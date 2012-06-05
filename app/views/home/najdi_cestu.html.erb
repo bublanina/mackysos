@@ -1,0 +1,58 @@
+<h1>Vyhľadanie cesty </h1>
+<%= form_tag :action=>"najdi_cestu" do %>
+<p class="center">
+
+
+Veľkosť poľa x:
+<%= number_field_tag :x, 10, :size=>4  %><br/>
+Veľkosť poľa y:
+<%= number_field_tag :y, 10, :size=>4  %><br/>
+Štart - pozícia x:
+<%= number_field_tag :startx, 1, :size=>4 %><br/>
+Štart - pozícia y:
+<%= number_field_tag :starty, 1, :size=>4 %><br/>
+Cieľ - pozícia x:
+<%= number_field_tag :cielx, 10, :size=>4 %><br/>
+Cieľ - pozícia y:
+<%= number_field_tag :ciely, 10, :size=>4 %><br/>
+Počet zakázaných polí:
+<%= number_field_tag :pocet, 4, :size=>4 %><br/><br/>
+
+<%= submit_tag "Nájdi cestu" %>
+</p><br/>
+<% end %>
+
+
+<% if @x %>
+Vysledok<%= @vysledok %>
+
+<table class = "c">
+<% (@x).times do |x| %>
+<tr>	
+	<% (@y).times do |y| %>
+	<% if @vysledok.include?((x)*@y+y) %>
+		<% if @pole[x][y]=="s" %>
+		<td class="c">
+		<%= @pole[x][y] %>
+		<% else %>
+		<td class="b">
+		<%= @pole[x][y] %>
+		<% end %>
+	<% else %>
+		<% if @pole[x][y]=="c" %>
+		<td class="c">
+		<%= @pole[x][y] %>
+		<% elsif @pole[x][y]=="x" %>
+		<td class="r">
+		<%= @pole[x][y] %>
+		<% else %>
+			<td>
+		<% end %>
+	<% end %>
+		
+		</td>
+	<% end %>
+</tr>
+<% end %>
+</table>
+<% end %>

@@ -62,6 +62,7 @@ Predikcia::Application.routes.draw do
    match '/sprava_db' => 'home#sprava_db'
    match '/vymaz_db' => 'real_values#vymaz_db'
    match '/error_wcma' => 'home#error_wcma'
+   match '/najdi_cestu' => 'home#najdi_cestu'
 
   # See how all your routes lay out with "rake routes"
 

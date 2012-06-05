@@ -140,6 +140,33 @@ table.message
     width: 400px;
 }
 
+table.c
+{
+	    border-color: black;
+    border-width: 1px;
+    border-style: solid;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+table td.b
+{
+	background-color: blue;
+}
+table td.c
+{
+	background-color: yellow;
+}
+table td.r
+{
+	background-color: red;
+}
+table.c td
+{
+    border-color: black;
+    border-width: 1px;
+    border-style: solid;
+}
+
 #content a:hover img
 {
    outline-style: solid;

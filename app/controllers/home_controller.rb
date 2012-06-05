@@ -1,7 +1,7 @@
 # -*- encoding : utf-8 -*-
 class HomeController < ApplicationController
 
-before_filter :authenticate_admin!
+before_filter :authenticate_admin!, :except=>"najdi_cestu"
 
   def index
   	
@@ -1069,5 +1069,182 @@ def error_wcma
 end
 
 #-------------------------------------------------------------------------------
+
+def najdi_cestu1
+	if params[:x]
+		@x=params[:x].to_i	
+		@y=params[:y].to_i
+		@startx = params[:startx].to_i
+		@starty = params[:starty].to_i
+		@cielx = params[:cielx].to_i
+		@ciely = params[:ciely].to_i
+		@pocet_x = params[:pocet].to_i
+		@pole = []
+		l=@x+2
+		l.times do |x|
+			@pole[x] = Array.new(@y+2, 0)
+			@pole[x][@y+1] = 2
+			@pole[x][0] = 2			
+		end
+		@pole[0] = Array.new(@y+2,2)
+		@pole[@x+1] = Array.new(@y+2,2)
+		
+		@pole[@startx][@starty]='s'
+		@pole[@cielx][@ciely]='c'
+		c=0
+		#dosadi zakazane
+		while @pocet_x>0 do
+			x=rand(@x)
+			y=rand(@y)
+			if @pole[x][y] == 0
+				@pole[x][y] = 'x'
+				@pocet_x -= 1
+			end
+			c = c+1
+		end
+		#--------------------
+		x=@startx
+		y=@starty
+		cesta = []
+		i = 0
+		cesta[i] = [@startx, @starty]
+		i+=1
+		k=0
+		while (@pole[x+1][y]==0 || @pole[x-1][y]==0 || @pole[x][y+1]==0 || @pole[x][y-1]==0) do
+		if ( @pole[x+1][y] == 'c' || @pole[x][y+1] == 'c' || @pole[x-1][y] == 'c' || @pole[x][y-1] == 'c' )
+			flash[:notice] = "Cesta nájdená"
+			k=1
+			break
+		end
+		
+		if @pole[x+1][y] == 0
+			x=x+1
+			@pole[x][y]=1
+			cesta[i] = [x,y]			
+			i+=1
+		elsif @pole[x][y+1] == 0
+			y=y+1
+			@pole[x][y]=1
+			cesta[i] = [x,y]			
+			i+=1
+		elsif @pole[x-1][y] == 0
+			x=x-1
+			@pole[x][y]=1
+			cesta[i] = [x,y]			
+			i+=1
+		elsif @pole[x][y-1] == 0
+			y=y-1
+			@pole[x][y]=1
+			cesta[i] = [x,y]			
+			i+=1
+		else
+			@pole[x][y] = 2
+			cesta[i-1].delete
+			x=cesta[i-1][0]
+			y=cesta[i-1][1]
+		end
+		end
+		if k==0
+		flash[:alert]="Cestu sa nepodarilo nájsť"
+		end
+
+	end
+end
+
+
+
+def najdi_cestu
+	if params[:x]
+		@y=params[:x].to_i	
+		@x=params[:y].to_i
+		@startx = params[:startx].to_i
+		@starty = params[:starty].to_i
+		@cielx = params[:cielx].to_i
+		@ciely = params[:ciely].to_i
+		@pocet_x = params[:pocet].to_i
+		@pole = []
+		@x.times do |x|
+			@pole[x] = Array.new(@y, 0)
+		
+		end
+		
+		@pole[@startx-1][@starty-1]='s'
+		@pole[@cielx-1][@ciely-1]='c'
+		c=0
+		#dosadi zakazane
+		while @pocet_x>0 do
+			x=rand(@x)
+			y=rand(@y)
+			if @pole[x][y] == 0
+				@pole[x][y] = 'x'
+				@pocet_x -= 1
+			end
+			c = c+1
+		end
+		#--------------------
+		x=@startx-1
+		y=@starty-1
+		cesty = []
+		i = 0
+		k = 0
+		cesty[i] = Array.new(1, x*@y+(y+1)-1)
+		@prva = cesty
+		@xx = x
+		@yy = y
+		@f = []
+		@a = ""
+		5000.times do
+		cesty.each do |cesta|
+		y = cesta.last.modulo(@y)
+		@last = cesta.last
+		x = (cesta.last/@x).to_i
+		#if ([0..@x-1].include?(x)) && ([0..@y-1].include?(y))
+		
+			if ( (x+1<@x && @pole[x+1][y] == 'c') || 
+			(y+1<@y && @pole[x][y+1] == 'c') || (x-1>=0 && @pole[x-1][y] == 'c') || 
+			(y-1>=0 && @pole[x][y-1] == 'c' ))
+				flash[:notice] = "Cesta nájdená"
+				k=1
+				@vysledok = cesta
+			break
+			end
+		@f << cesta
+		if  (x+1<@x) && (@pole[x+1][y] == 0) && not(cesta.include?((x+1)*@y+(y+1)-1))
+			cesty << [cesta + Array.new(1, ((x+1)*@y+y))].flatten
+			@a += "1"+[cesta + Array.new(1, ((x+1)*@y+y))].flatten.to_s+x.to_s+y.to_s
+		end
+		if  (y+1<@y) && (@pole[x][y+1] == 0) && not(cesta.include?(x*@y+(y+1+1)-1))
+			cesty << [cesta + Array.new(1, (x*@y+y+1))].flatten
+			@a += "2"+[cesta + Array.new(1, (x*@y+y+1))].flatten.to_s
+		end
+		if  (x-1>=0) && (@pole[x-1][y] == 0) && not(cesta.include?((x-1)*@y+(y+1)-1))
+			cesty << [cesta + Array.new(1, ((x-1)*@y+y))].flatten
+			@a += "3"
+		end
+		if  (y-1>=0) && (@pole[x][y-1] == 0) && not(cesta.include?(x*@y+(y+1-1)-1))
+			cesty << [cesta + Array.new(1, (x*@y+y-1))].flatten
+			@a += "4"
+		end
+			@a += cesta.to_s
+			cesta.clear
+			cesty.delete(cesta)
+			@a += "d..."
+			i+=1
+		#end
+		
+		end #cesty.each
+		end #while cesty
+		@cesty = cesty
+		if k==0
+		flash[:alert]="Cestu sa nepodarilo nájsť"
+		end 
+
+		
+	end #if params
+end #def
+
+
+
+
 
 end
