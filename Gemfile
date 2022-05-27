@@ -7,7 +7,7 @@ gem 'rails', '~>3.1'
 
 gem 'mysql2', '< 0.3.7'
 gem 'mysql'
-gem "rack", '1.3.3'
+gem "rack", '1.3.10'
 
 
 gem "sanitize"
